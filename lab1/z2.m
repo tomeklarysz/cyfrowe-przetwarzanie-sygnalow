@@ -18,4 +18,4 @@ end
 
 
 plot(ts,analog,'k--'); hold on;
-plot(ts,x_odt,'b');
+plot(ts,x_odt-1,'b');
