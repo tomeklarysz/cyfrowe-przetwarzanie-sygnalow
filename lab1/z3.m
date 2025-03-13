@@ -1,18 +1,18 @@
 clear all; close all;
 load("adsl_x.mat");
 
-prefix = x(1:32);
-ostatnie = x(512:544);
+pozycje = zeros(4,1);
+start_prefix = 1;
+koniec_prefix = 32;
+korelacje = zeros(2049-32,1);
+% wyniki
+for i = 1:2049-544 
+    prefix = x(start_prefix:koniec_prefix);
+    okno = x(start_prefix+512:koniec_prefix+512);
+    r = xcorr(prefix,okno);
 
-pozycje = zeros(3,1);
-for i = 1:3
-    start = (i-1) * 544 + 1;
-
-    prefix = x(start:start + 31);
-    koncowka = x(start + 512: start + 543);
-
-    r = xcorr(prefix, koncowka);
-    [m, I] = max(r);
-
-    % pozycje(i) = 
+    start_prefix = start_prefix + 1;
+    koniec_prefix = koniec_prefix + 1;
 end
+
+% plot(r)

@@ -1,6 +1,5 @@
 clear all; close all;
-A = 230; % V
-f = 50;  % Hz
+f = 50;
 T = 0.1;
 
 fs = 200;
@@ -16,6 +15,10 @@ for i = 1:length(t)
     x_odt = x_odt + x(i) * sinc((ts - t(i))/ dt);
 end
 
+errors = analog - x_odt;
 
 plot(ts,analog,'k--'); hold on;
-plot(ts,x_odt-1,'b');
+plot(ts,x_odt,'b'); hold on;
+plot(ts,errors,'-');
+legend('Oryginalny sygnał', 'Zrekonstruowany sygnał', 'Błąd rekonstrukcji');
+title('Rekonstrukcja sygnału z użyciem sin(x)/x')
