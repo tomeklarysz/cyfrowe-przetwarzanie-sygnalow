@@ -44,8 +44,9 @@ fprintf('Wyskalowanie\n');
 fprintf('Maksymalne tłumienie: %2f\n',Max);
 fprintf('Minimalne tłumienie: %2f\n', Min);
 
-figure; plot(7:13,unwrap(angle(H(7:13)))); xlabel('s = jw'); title('angle(H(f)) [rad]'); grid;
-
+% figure; plot(7:13,unwrap(angle(H(7:13)))); xlabel('s = jw'); title('angle(H(f)) [rad]'); grid;
+figure; plot(w,unwrap(angle(H))); xlabel('s = jw'); title('angle(H(f)) [rad]'); grid; pause;
+% figure; plot(w,atan(imag(H)./real(H))); xlabel('s = jw'); title('angle(H(f)) [rad]'); grid;
 % zero transmitancji słuzy do usuwania wybranych czestotliwosci
 % (powoduje "dołek"/"szczeline" w ch-ce amplitudowej filtra), 
 % natomiast biegun transmitancji - słuzy do wzmacniania
