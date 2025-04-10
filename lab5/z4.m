@@ -11,6 +11,9 @@ f1 = 10; f2=100; % dla filtrow BandPass oraz BandStop
 Rp = 3; % dozwolony poziom oscylacji w pasmie przepustowym (w dB) - ripples in pass
 Rs = 100; % dozwolony poziom oscylacji w pasmie zaporowym (w dB) - ripples in stop
 
+% zastąpienie zmiennej s w H(s) przez wybraną funkcję zmiennej s'
+% H(s') ma wtedy inne miejsca zerowe
+
 % Projekt analogowego filtra prototypowego - dolnoprzepustowy z w0 = 1
 % LowPass Butterwoth na BandStop
 [z,p,wzm] = buttap(N); % analogowy prototyp Butterwotha
