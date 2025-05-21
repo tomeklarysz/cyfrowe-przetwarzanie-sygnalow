@@ -4,12 +4,10 @@ clear all; close all;
 [x, f_sb] = audioread("mowa_2.wav");
 [d, f_d] = audioread("mowa_3.wav");
 
-% x = x';
-% d = d';
 % soundsc(d, f_d);
 
-M = 5; % długość filtru
-mi = 0.74; % współczynnik szybkości adaptacji
+M = 20; % długość filtru
+mi = 0.1; % współczynnik szybkości adaptacji
 y = []; e = []; % sygnały wyjściowe z filtra
 bx = zeros(M,1); % bufor na próbki wejściowe x
 h = zeros(M,1); % początkowe (puste) wagi filtru
@@ -22,4 +20,14 @@ h = h + mi * e(n) * bx; % LMS
 end
 
 % soundsc(Sa, f_sa);
-soundsc(e,f_sa);
+% soundsc(e,f_sa);
+
+t = 0:length(Sa)-1/f_sa;
+
+figure;
+subplot(211);
+plot(t,Sa);
+title('glos A');
+subplot(212);
+plot(t,e);
+title('estymowany sygnal e');

@@ -18,11 +18,15 @@ deltaf = 0.5e3;
 fm = 0.25;
 dref2 = sin(2*pi*fc*t + deltaf/fm + sin(2*pi*fm*t));
 
+[dref3, f_3] = audioread("engine.wav");
+dref3 = dref3(1:fs);
+dref3 = dref3';
 
 powers = [10, 20, 40];
-drefs = {dref1, dref2};
+drefs = {dref1, dref2, dref3};
 for i=1:length(drefs)
 dref = drefs{i};
+fprintf('%d.\n',i);
 for p=1:length(powers)
 d = awgn( dref, powers(p), 'measured' ); % sygnal + szum
 
@@ -39,7 +43,8 @@ e(n) = d(n) - y(n); % oblicz e[n]
 h = h + mi * e(n) * bx; % LMS
 % h = h + mi * e(n) * bx /(bx'*bx); % NLMS
 end
-snr = 10*log10(sum(dref.^2)/sum((dref - y ).^2)),
+snr = 10*log10(sum(dref.^2)/sum((dref - y ).^2));
+fprintf('snr dla %d dB = %.4f dB\n', powers(p), snr);
 
 figure;
 sgtitle(powers(p));
@@ -61,4 +66,5 @@ title('sygnal odszumiony');
 
 % legend('sygnał oryginalny', 'sygnał zaszumiony', 'sygnał odszumiony');
 end
+pause;
 end
