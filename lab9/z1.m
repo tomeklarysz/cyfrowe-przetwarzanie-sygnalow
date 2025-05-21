@@ -65,8 +65,56 @@ subplot(313);
 plot(t(z),y(z));
 title('sygnal odszumiony');
 % ylim([-2.5 2.5]);
-
-% legend('sygnał oryginalny', 'sygnał zaszumiony', 'sygnał odszumiony');
 end
 pause;
+end
+
+% porownanie liczb wag filtra
+d = awgn( dref1, 20, 'measured' ); % sygnal + szum
+x = [ d(1) d(1:end-1) ]; % WE: sygnał filtrowany, teraz opóźniony d
+M = 30; % długość filtru
+mi = 0.01; % współczynnik szybkości adaptacji
+y = []; e = []; % sygnały wyjściowe z filtra
+bx = zeros(M,1); % bufor na próbki wejściowe x
+h = zeros(M,1); % początkowe (puste) wagi filtru
+for n = 1 : length(x)
+bx = [ x(n); bx(1:M-1) ]; % pobierz nową próbkę x[n] do bufora
+y(n) = h' * bx; % oblicz y[n] = sum( x .* bx) – filtr FIR
+e(n) = d(n) - y(n); % oblicz e[n]
+h = h + mi * e(n) * bx; % LMS
+% h = h + mi * e(n) * bx /(bx'*bx); % NLMS
+end
+
+figure;
+plot(t(z),dref(z));
+title('sygnal oryginalny');
+
+Ms = [15,30,60,120,240,480];
+Ms_signals = zeros(1,length(Ms));
+
+for p=1:length(Ms)
+d = awgn( dref, 20, 'measured' ); % sygnal + szum
+
+x = [ d(1) d(1:end-1) ]; % WE: sygnał filtrowany, teraz opóźniony d
+M = Ms(p); % długość filtru
+mi = 0.01; % współczynnik szybkości adaptacji
+y = []; e = []; % sygnały wyjściowe z filtra
+bx = zeros(M,1); % bufor na próbki wejściowe x
+h = zeros(M,1); % początkowe (puste) wagi filtru
+for n = 1 : length(x)
+bx = [ x(n); bx(1:M-1) ]; % pobierz nową próbkę x[n] do bufora
+y(n) = h' * bx; % oblicz y[n] = sum( x .* bx) – filtr FIR
+e(n) = d(n) - y(n); % oblicz e[n]
+h = h + mi * e(n) * bx; % LMS
+% h = h + mi * e(n) * bx /(bx'*bx); % NLMS
+end
+Ms_signals(p) = y;
+
+end
+
+figure;
+for s=1:Ms_signals
+    z = 1:500;
+    plot(t,Ms_signals(s)); hold on;
+    title('sygnal odszumiony');
 end

@@ -20,11 +20,20 @@ freq = freq + beta*perr;
 end
 c57(:,1) = cos(3*theta(1:end-1)); % nosna 57 kHz
 
+z = 1:100;
+pll = cos(theta(1:end-1));
 
 figure;
-plot(t, p); hold on;
-% figure;
-plot(t, cos(theta(1:end-1)));
+plot(t(z), p(z)); hold on;
+plot(t(z), pll(z));
+title('pierwsze 100 probek');
+legend('sygnal p', 'syngal po PLL');
+
+k = length(p)-100:length(p);
+figure;
+plot(t(k), p(k)); hold on;
+plot(t(k), pll(k));
+title('ostatnie 100 probek');
 legend('sygnal p', 'syngal po PLL');
 
 % jak szybko sygnal przechodzacy przez petle zbiega sie w fazie
