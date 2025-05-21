@@ -46,21 +46,23 @@ end
 snr = 10*log10(sum(dref.^2)/sum((dref - y ).^2));
 fprintf('snr dla %d dB = %.4f dB\n', powers(p), snr);
 
+z = 1:500;
+
 figure;
 sgtitle(powers(p));
 % plot(t,dref,t,x,t,y);
 subplot(311);
-plot(t,dref);
+plot(t(z),dref(z));
 title('sygnal oryginalny');
 % ylim([-2.5 2.5]);
 % figure;
 subplot(312);
-plot(t,d);
+plot(t(z),d(z));
 title('sygnal zaszumiony');
 % ylim([-2.5 2.5]);
 % figure;
 subplot(313);
-plot(t,y);
+plot(t(z),y(z));
 title('sygnal odszumiony');
 % ylim([-2.5 2.5]);
 

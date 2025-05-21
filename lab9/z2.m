@@ -23,11 +23,15 @@ end
 % soundsc(e,f_sa);
 
 t = 0:length(Sa)-1/f_sa;
+z = 1:10000;
 
 figure;
 subplot(211);
-plot(t,Sa);
+plot(t(z),Sa(z));
 title('glos A');
 subplot(212);
-plot(t,e);
+plot(t(z),e(z));
 title('estymowany sygnal e');
+
+% snr = 10*log10(sum(Sa.^2)/sum(Sa-e').^2);
+% fprintf('snr = %.4f\n',snr);
