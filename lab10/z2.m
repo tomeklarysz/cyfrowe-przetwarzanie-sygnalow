@@ -2,8 +2,11 @@ clear all; close all;
 
 [x,fpr]=audioread('mowa1.wav'); % wczytaj sygnał mowy (cały)
 % plot(x); title('sygnał mowy'); pause % pokaż go
-% soundsc(x,fpr); % oraz odtwórz na głośnikach (słuchawkach)
+soundsc(x,fpr); % oraz odtwórz na głośnikach (słuchawkach) 
+pause;
 
+[cold, ~] = audioread('coldvox.wav');
+cold = cold(:)';
 
 N=length(x); % długość sygnału
 Mlen=240; % długość okna Hamminga (liczba próbek)
@@ -27,23 +30,19 @@ x=filter([1 -0.9735], 1, x); % filtracja wstępna (preemfaza) − opcjonalna
 % subplot(2,1,1); plot(x); title('Po preemfazie');
 % subplot(2,1,2); pwelch(x); title('Widmo po preemfazie');
 
- 
-ramki = [25, 70, 250];
-for i = 1:length(ramki)
-    nr = ramki(i);
+for wariant = 1:4
+for nr = 1 : Nramek
     n = 1+(nr-1)*Mstep : Mlen + (nr-1)*Mstep;
-    x_s = x(n);
-    soundsc(x_s,fpr);
-    figure;
-    subplot(2,1,1); plot(x_s); title('Przed preemfazą');
+    % figure;
+    % subplot(2,1,1); plot(x_s); title('Przed preemfazą');
     % subplot(2,1,2); pwelch(x_s); title('Widmo mocy');
 
-    x_s=filter([1 -0.9735], 1, x_s); % filtracja wstępna (preemfaza) − opcjonalna
+    x=filter([1 -0.9735], 1, x); % filtracja wstępna (preemfaza) − opcjonalna
 
     % figure;
-    subplot(2,1,2); plot(x_s); title('Po preemfazie');
+    % subplot(2,1,2); plot(x_s); title('Po preemfazie');
     % subplot(2,1,2); pwelch(x_s); title('Widmo po preemfazie');
-    bx = x_s;
+    bx = x(n);
     % ANALIZA − wyznacz parametry modelu -------------------------------------------------------------------------------
     bx = bx - mean(bx); % usuń wartość średnią
     for k = 0 : Mlen-1
@@ -55,13 +54,6 @@ for i = 1:length(ramki)
     imax=find(r==rmax); % znajdź indeks tego maksimum
     if ( rmax > 0.3*r(1) ) T=imax; else T=0; end % głoska dźwięczna/bezdźwięczna?
     if (T>80) T=round(T/2); end % znaleziono drugą podharmoniczną
-    %
-    % decyzję o ,,dźwięczności'' głoski,
-    if T > 0
-        fprintf('Dźwięczna głoska: T = %d\nczęstotliwość tonu podstawowego: = %.4f\n',T,1/T);
-    else
-        fprintf('Bezdźwięczna głoska\n');
-    end
     
     rr(1:Np,1)=(r(2:Np+1))';
     for m=1:Np
@@ -75,12 +67,36 @@ for i = 1:length(ramki)
     H=freqz(1,[1;a]); % oblicz jego odp. częstotliwościową
     % lpc=[lpc; T; wzm; a; ]; % zapamiętaj wartości parametrów
     
+    switch wariant
+        case 1
+            T = 0;
+        case 2
+            if T ~= 0
+                T = 2*T;
+            end
+        case 3
+            if T ~= 0
+                T = 80;
+            end
+        case 4
+            T = 0;
+    end
+
     % SYNTEZA − odtwórz na podstawie parametrów ---------------------------------------------------------------------
     % T = 80; % usuń pierwszy znak „%” i ustaw: T = 80, 50, 30, 0
     if (T~=0) gdzie=gdzie-Mstep; end % „przenieś” pobudzenie dźwięczne 
+    index = 1;
     for n=1:180
         if( T==0)
-            pob=2*(rand(1,1)-0.5); gdzie=271; % pobudzenie szumowe
+            if (wariant == 4)
+                pob = cold(index);
+                index = index + 1;
+                if index > length(cold)
+                    index = 1;
+                end
+            else
+                pob=2*(rand(1,1)-0.5); gdzie=271; % pobudzenie szumowe
+            end
         else
             if (n==gdzie) pob=1; gdzie=gdzie+T; % pobudzenie dźwięczne 
             else pob=0; end
@@ -88,22 +104,27 @@ for i = 1:length(ramki)
         ss(n)=wzm*pob-bs*a; % filtracja „syntetycznego” pobudzenia
         bs=[ss(n) bs(1:Np-1) ]; % przesunęcie bufora wyjściowego
     end
-
-    figure;
+    % subplot(414); plot(ss); title(‘zsyntezowany fragment sygnału mowy’); pause
     s = [s ss]; % zapamiętanie zsyntezowanego fragmentu mowy
 
     s=filter(1,[1 -0.9735],s); % filtracja (deemfaza) − filtr odwrotny − opcjonalny
     
-    subplot(211); plot(abs(H)); title('widmo filtra traktu głosowego');
+    % figure;
+    % subplot(411); plot(abs(H)); title('widmo filtra traktu głosowego');
     
-
+    % sygnał czasowy przed i po progowaniu,
+    % subplot(412); plot(bx); title('sygnał czasowy przed i po progowaniu')
+    
     % funkcja autokorelacji sygnału z zaznaczonymi progami,
     % figure;
-    subplot(212); plot(r); hold on;
-    title('funkcja autokorelacji z programi');
-    yline(0.3*r(1), '--r', 'Próg decyzji');
-    
-    figure;
-    subplot(211); plot(x_s); title('ramka oryginalna');
-    subplot(212); plot(s); title('ramka zsyntezowana'); pause
+    % subplot(413); plot(r); hold on;
+    % title('funkcja autokorelacji z programi');
+    % yline(0.3*r(1), '--r', 'Próg decyzji');
+    % 
+    % figure;
+    % subplot(211); plot(x_s); title('ramka oryginalna');
+    % subplot(212); plot(s); title('ramka zsyntezowana'); pause
+end
+    soundsc(s, fpr); 
+    pause(2);
 end
