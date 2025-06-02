@@ -1,7 +1,13 @@
 clear all; close all;
 
 [x,fpr] = audioread('mowa1.wav');
-soundsc(x(1:floor(end/4))); pause;
+% soundsc(x(1:floor(end/4))); pause;
+
+gloska_dzw = 3200:3600;
+x = x(gloska_dzw);
+
+figure;
+plot(x); title('dzwieczny fragment mowy');
 
 N=length(x); % długość sygnału
 Mlen=240; % długość okna Hamminga (liczba próbek)
@@ -15,10 +21,12 @@ ss=[]; % fragment sygnału mowy zsyntezowany
 bs=zeros(1,Np); % bufor na fragment sygnału mowy
 Nramek=floor((N-240)/180+1); % ile fragmentów (ramek) jest do przetworzenia
 
+sygnal_resztkowy = [];
+
 % x=filter([1 -0.9735], 1, x); % filtracja wstępna (preemfaza) − opcjonalna
 
 % for nr = 1 : Nramek
-nr = 25;
+nr = 1;
 % pobierz kolejny fragment sygnału 
 n = 1+(nr-1)*Mstep : Mlen + (nr-1)*Mstep;
 bx = x(n);
@@ -43,9 +51,12 @@ a=-inv(R)*rr; % oblicz współczynniki filtra predykcji
 wzm=r(1)+r(2:Np+1)*a; % oblicz wzmocnienie
 H=freqz(1,[1;a]); % oblicz jego odp. częstotliwościową
 
-resztka = filter([1; a], 1, x(n)); 
-ile_okresow = 4;
-resztka_srednia = mean(reshape(resztka(1:T*ile_okresow), T, ile_okresow), 2)';
+% w funkcji filter b to licznik, a to mianownik (denominator
+a_filter = 1;
+b_filter = [1; a];
+
+resztka = filter(b_filter, a_filter, bx); 
+sygnal_resztkowy = [sygnal_resztkowy; resztka(1:Mstep)];
 
 % subplot(413); plot(abs(H)); title(‘widmo filtra traktu głosowego’);
 % lpc=[lpc; T; wzm; a; ]; % zapamiętaj wartości parametrów
@@ -57,15 +68,25 @@ for n=1:180
     if( T==0)
         pob=2*(rand(1,1)-0.5); gdzie=271; % pobudzenie szumowe
     else
-        pob = resztka_srednia(mod(gdzie-1, T) + 1);
-        gdzie = gdzie + 1;
+        % if (n==gdzie) pob=1; gdzie=gdzie+T;	   % pobudzenie dźwięczne
+        if (n==gdzie) pob=sygnal_resztkowy(mod(n, T) + T); gdzie=gdzie+T;
+        else pob=0; end
     end
     ss(n)=wzm*pob-bs*a; % filtracja „syntetycznego” pobudzenia
     bs=[ss(n) bs(1:Np-1) ]; % przesunęcie bufora wyjściowego
 end
-
+% end
 % subplot(414); plot(ss); title(‘zsyntezowany fragment sygnału mowy’); pause
 s = [s ss]; % zapamiętanie zsyntezowanego fragmentu mowy
 % s=filter(1,[1 -0.9735],s); % filtracja (deemfaza) − filtr odwrotny − opcjonalny
+
+figure;
+plot(sygnal_resztkowy); title('sygnal resztkowy po odwrotnym filtrowaniu');
+xlabel('numer probki');
+
+figure;
 plot(s); title('mowa zsyntezowana'); 
-soundsc(s(1:floor(end/4))); pause
+% soundsc(s(1:floor(end/4))); pause
+
+% Sygnał resztkowy ma mniejszą dynamikę niż sygnał oryginalny, 
+% więc można go zapisać za pomocą mniejszej liczby bitów
