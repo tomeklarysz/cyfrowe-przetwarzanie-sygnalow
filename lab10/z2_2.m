@@ -70,6 +70,7 @@ for n=1:180
     else
         % if (n==gdzie) pob=1; gdzie=gdzie+T;	   % pobudzenie dźwięczne
         if (n==gdzie) pob=sygnal_resztkowy(mod(n, T) + T); gdzie=gdzie+T;
+        % if (n==gdzie) pob=sygnal_resztkowy(1:T); gdzie=gdzie+T;
         else pob=0; end
     end
     ss(n)=wzm*pob-bs*a; % filtracja „syntetycznego” pobudzenia

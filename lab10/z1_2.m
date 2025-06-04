@@ -90,3 +90,5 @@ for nr = 1 : Nramek
  soundsc(s(1:floor(end/4)), fpr); pause;
  clear R; clear a; clear rr;
 end
+
+% mniej biegunow to mniej dokladne odwzorowanie traktu glosowego
