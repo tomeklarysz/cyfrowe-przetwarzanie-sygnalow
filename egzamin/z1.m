@@ -24,6 +24,10 @@ mF = sin(2*pi*fm*t);
 x = A*(1+kA*mA) .* sin(2*pi*(fc*t+kF*cumsum(mF)*dt));
 soundsc(x,fpr);
 
+% czemu cumsum?
+% Numeryczne całkowanie sygnału dyskretnego m[n] (czyli m(t) próbkowanego) 
+% można zrealizować za pomocą sumy kumulacyjnej.
+% numeryczne całkowanie można przybliżyć do sumy
 
 % figure;
 % plot(t(1:100),x(1:100)); grid; title('Sygnal x(t)'); xlabel('czas [s]'); ylabel('Amplituda');

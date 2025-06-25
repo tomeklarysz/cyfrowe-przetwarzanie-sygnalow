@@ -22,6 +22,7 @@
 
 
 % DtFT
+% dyskretna w czasie transformata Fouriera
 % zdyskretyzowana ciągła transformacja Fouriera (czyli zdyskretyzowana
 % klasyczna transformata Fouriera)
 % przekształcenie nieskończonego lub bardzo długiego ciągu w funkcję
